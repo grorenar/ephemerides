@@ -142,8 +142,7 @@ footer{margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--border);f
 *::-webkit-scrollbar-track{background:transparent}
 *::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px;border:1px solid var(--border2)}
 *::-webkit-scrollbar-thumb:hover{background:#2a2f3e}
-/* Leaflet dark overrides */
-.leaflet-container{background:#0d0f14}
+/* Leaflet overrides */
 .leaflet-control-zoom a{background:var(--bg2);color:var(--text2);border-color:var(--border2)}
 .leaflet-control-zoom a:hover{background:var(--bg3);color:var(--amber)}
 .leaflet-popup-content-wrapper{background:var(--bg2);color:var(--text);border:1px solid var(--border2);border-radius:var(--r)}
@@ -498,7 +497,7 @@ let leafletMap=null, leafletMarker=null;
 
 function initMap(){
   leafletMap=L.map('map',{zoomControl:true}).setView([46.5,2.5],5);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
     attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
     subdomains:'abcd',
     maxZoom:19

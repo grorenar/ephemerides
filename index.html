@@ -291,8 +291,14 @@ footer{flex-direction:column}
       <div class="times"><div class="tb"><div class="lbl">SR ↑</div><div class="val" id="r-sr-gmt">--:--:--</div></div><div class="tb"><div class="lbl">SS ↓</div><div class="val" id="r-ss-gmt">--:--:--</div></div></div>
     </div>
     <div class="rrow lonc">
-      <div class="rlabel"><div class="main">UTC — Corrigé longitude</div><div class="sub" id="r-lon-sub">correction</div></div>
-      <div class="times"><div class="tb"><div class="lbl">SR ↑</div><div class="val" id="r-sr-lon">--:--:--</div></div><div class="tb"><div class="lbl">SS ↓</div><div class="val" id="r-ss-lon">--:--:--</div></div></div>
+      <div class="rlabel"><div class="main">UTC — Sur le méridien local</div><div class="sub" id="r-lon-sub">correction</div></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+        <div class="times">
+          <div class="tb"><div class="lbl">SR ↑</div><div class="val" id="r-sr-lon">--:--:--</div></div>
+          <div class="tb"><div class="lbl">SS ↓</div><div class="val" id="r-ss-lon">--:--:--</div></div>
+        </div>
+        <div style="font-size:.72rem;font-family:var(--mono);color:var(--text3)">Durée du jour : <span id="r-day-duration" style="color:var(--text2)">--h--</span></div>
+      </div>
     </div>
     <div class="rrow srss">
       <div class="rlabel"><div class="main">Lever / Coucher — Heure locale</div><div class="sub" id="r-srss-sub">heure locale réelle</div></div>
@@ -300,7 +306,13 @@ footer{flex-direction:column}
     </div>
     <div class="rrow aero">
       <div class="rlabel"><div class="main">Nuit aéronautique — UTC</div><div class="sub">SR − 30 min · SS + 30 min</div></div>
-      <div class="times"><div class="tb"><div class="lbl">Début jour</div><div class="val" id="r-sr-aero">--:--:--</div></div><div class="tb"><div class="lbl">Fin jour</div><div class="val" id="r-ss-aero">--:--:--</div></div></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+        <div class="times">
+          <div class="tb"><div class="lbl">Début jour</div><div class="val" id="r-sr-aero">--:--:--</div></div>
+          <div class="tb"><div class="lbl">Fin jour</div><div class="val" id="r-ss-aero">--:--:--</div></div>
+        </div>
+        <div style="font-size:.72rem;font-family:var(--mono);color:var(--text3)">Durée jour aéro : <span id="r-aero-duration" style="color:var(--text2)">--h--</span></div>
+      </div>
     </div>
     <div class="rrow loc">
       <div class="rlabel"><div class="main">Nuit aéronautique — Heure locale</div><div class="sub" id="r-tz-sub">UTC±</div></div>
@@ -486,9 +498,10 @@ let leafletMap=null, leafletMarker=null;
 
 function initMap(){
   leafletMap=L.map('map',{zoomControl:true}).setView([46.5,2.5],5);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    maxZoom:18
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+    attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
+    subdomains:'abcd',
+    maxZoom:19
   }).addTo(leafletMap);
 
   const markerIcon=L.divIcon({
@@ -626,6 +639,13 @@ function showErr(m){const el=document.getElementById('err');el.textContent=m;el.
 function hms(s){s=Math.round(s);while(s<0)s+=86400;while(s>=86400)s-=86400;return String(Math.floor(s/3600)).padStart(2,'0')+':'+String(Math.floor((s%3600)/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
 function ecc(T){return 0.016708634-0.000042037*T-0.0000001267*T*T;}
 
+function formatDuration(seconds){
+  seconds = Math.round(Math.abs(seconds));
+  const h = Math.floor(seconds/3600);
+  const m = Math.floor((seconds%3600)/60);
+  return h+'h'+String(m).padStart(2,'0');
+}
+
 // ── NOAA ──────────────────────────────────────────────────────────────────
 function srss(year,month,day,lat,lon){
   let y=year,m=month;if(m<=2){y--;m+=12;}
@@ -729,6 +749,8 @@ function calculate(){
   document.getElementById('r-ss-local-real').textContent=hms(r.ss_lon+utcOff);
   document.getElementById('r-sr-aero').textContent=hms(sr_aero);
   document.getElementById('r-ss-aero').textContent=hms(ss_aero);
+  document.getElementById('r-day-duration').textContent=formatDuration(r.ss_lon-r.sr_lon);
+  document.getElementById('r-aero-duration').textContent=formatDuration(ss_aero-sr_aero);
   document.getElementById('r-sr-loc').textContent=hms(sr_aero+utcOff);
   document.getElementById('r-ss-loc').textContent=hms(ss_aero+utcOff);
   const absLon=Math.abs(lon),corrS=Math.round(Math.abs(r.lonCorr)),corrMin=Math.floor(corrS/60),corrSec=corrS%60;
